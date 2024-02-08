@@ -6,7 +6,8 @@ using MovieSearch.DAL.Repositories.Movies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<MovieSearchDatabaseContext>(optionsAction => optionsAction.UseSqlite("Data Source=.\\mymoviedb.db"));
+var connectionString = builder.Configuration.GetConnectionString("mymoviedb");
+builder.Services.AddDbContext<MovieSearchDatabaseContext>(optionsAction => optionsAction.UseSqlite(connectionString));
 builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IErrorReportingService, FakeErrorReportingService>();
