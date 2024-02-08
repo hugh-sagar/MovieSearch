@@ -11,17 +11,19 @@ namespace MovieSearch.DAL.Repositories.Movies
             _context = context;
         }
 
-        #region RetrieveAllByTitle
+        #region RetrieveAllBySearch
 
-        public List<Movie> RetrieveAllByTitle(string title, int page, int resultsPerPage)
+        public List<Movie> RetrieveAllBySearch(string title, string genre, int page, int resultsPerPage)
         {
-            var movieQueryable = string.IsNullOrWhiteSpace(title) ? _context.Movies.AsQueryable()
-                                                                  : _context.Movies.Where(x => x.Title != null && x.Title.ToUpper().Contains(title.ToUpper()));
+            var movieQueryable = _context.Movies.AsQueryable();
+            if (string.IsNullOrWhiteSpace(title) == false) movieQueryable = movieQueryable.Where(x => x.Title != null && x.Title.ToUpper().Contains(title.ToUpper()));
+            if (string.IsNullOrWhiteSpace(genre) == false) movieQueryable = movieQueryable.Where(x => x.Genre != null && x.Genre.ToUpper().Contains(genre.ToUpper()));
 
             return movieQueryable.Skip(resultsPerPage * (page - 1))
                                  .Take(resultsPerPage).ToList();
         }
 
         #endregion
+
     }
 }

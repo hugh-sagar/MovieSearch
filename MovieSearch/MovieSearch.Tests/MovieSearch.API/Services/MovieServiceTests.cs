@@ -26,14 +26,16 @@ namespace MovieSearch.Tests.MovieSearch.API.Services
         {
             //arrange
             const string title = "title";
+            const string genre = "genre";
             const int page = 1;
             const int resultsPerPage = 2;
+            var model = new SearchModel { Title = title, Genre = genre, Page = page, ResultsPerPage = resultsPerPage };
 
             var expected = new List<Movie> { new Movie() };
-            _movieRepository.Setup(x => x.RetrieveAllByTitle(title, page, resultsPerPage)).Returns(expected);
+            _movieRepository.Setup(x => x.RetrieveAllBySearch(title, genre, page, resultsPerPage)).Returns(expected);
 
             //act
-            var actual = _instance.Search(new SearchModel { Title = title, Page = page, ResultsPerPage = resultsPerPage });
+            var actual = _instance.Search(model);
 
             //assert
             actual.Should().BeEquivalentTo(expected);

@@ -14,7 +14,7 @@ namespace MovieSearch.API.Services.Movie
 
         public List<DAL.Entities.Movie> Search(SearchModel model)
         {
-            return _movieRepository.RetrieveAllByTitle(model.Title, model.Page, model.ResultsPerPage);
+            return _movieRepository.RetrieveAllBySearch(model.Title, model.Genre, model.Page, model.ResultsPerPage);
         }
     }
 }

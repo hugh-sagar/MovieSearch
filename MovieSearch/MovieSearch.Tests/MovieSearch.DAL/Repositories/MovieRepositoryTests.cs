@@ -14,13 +14,13 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
             _instance = new MovieRepository(TestDatabaseContext);
         }
 
-        #region RetrieveAllByTitle
+        #region RetrieveAllBySearch
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void RetrieveAllByTitle_WHERE_title_is_null_or_whitespace_SHOULD_filter_by_page_and_result_per_page(string title)
+        public void RetrieveAllBySearch_WHERE_title_and_genre_are_null_or_whitespace_SHOULD_filter_by_page_and_result_per_page(string searchField)
         {
             //arrange
             var expectedMovie1 = new Movie { Title = "c" };
@@ -38,7 +38,7 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
             TestDatabaseContext.SaveChanges();
 
             //act
-            var actual = _instance.RetrieveAllByTitle(title, 2, 2);
+            var actual = _instance.RetrieveAllBySearch(searchField, searchField, 2, 2);
 
             //assert
             actual.Should().HaveCount(2);
@@ -47,7 +47,7 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
         }
 
         [Fact]
-        public void RetrieveAllByTitle_WHERE_title_is_not_null_or_whitespace_SHOULD_filter_by_title_page_and_result_per_page()
+        public void RetrieveAllBySearch_WHERE_title_is_not_null_or_whitespace_SHOULD_filter_by_title_page_and_result_per_page()
         {
             //arrange
             const string title = "title";
@@ -70,7 +70,7 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
             TestDatabaseContext.SaveChanges();
 
             //act
-            var actual = _instance.RetrieveAllByTitle(title, 2, 3);
+            var actual = _instance.RetrieveAllBySearch(title, null, 2, 3);
 
             //assert
             actual.Should().HaveCount(3);
@@ -80,7 +80,40 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
         }
 
         [Fact]
-        public void RetrieveAllByTitle_WHERE_results_per_page_is_greater_than_total_number_of_movies_SHOULD_return_all()
+        public void RetrieveAllBySearch_WHERE_genre_is_not_null_or_whitespace_SHOULD_filter_by_genre_page_and_result_per_page()
+        {
+            //arrange
+            const string genre = "genre";
+
+            var expectedMovie1 = new Movie { Genre = genre };
+            var expectedMovie2 = new Movie { Genre = $"a{genre}a" };
+            var expectedMovie3 = new Movie { Genre = "gEnRe" };
+            TestDatabaseContext.Movies.AddRange(new List<Movie>()
+            {
+                new Movie { Genre = "a" },
+                new Movie { Genre = genre },
+                new Movie { Genre = $"a{genre}b"},
+                new Movie { Genre = genre.ToUpper()},
+                expectedMovie1,
+                new Movie(),
+                expectedMovie2,
+                expectedMovie3,
+                new Movie { Genre = genre},
+            });
+            TestDatabaseContext.SaveChanges();
+
+            //act
+            var actual = _instance.RetrieveAllBySearch(null, genre, 2, 3);
+
+            //assert
+            actual.Should().HaveCount(3);
+            actual.Should().Contain(x => x.Id == expectedMovie1.Id);
+            actual.Should().Contain(x => x.Id == expectedMovie2.Id);
+            actual.Should().Contain(x => x.Id == expectedMovie3.Id);
+        }
+
+        [Fact]
+        public void RetrieveAllBySearch_WHERE_results_per_page_is_greater_than_total_number_of_movies_SHOULD_return_all()
         {
             //arrange
             const string title = "title";
@@ -97,7 +130,7 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
             TestDatabaseContext.SaveChanges();
 
             //act
-            var actual = _instance.RetrieveAllByTitle(title, 1, 300);
+            var actual = _instance.RetrieveAllBySearch(null, null, 1, 300);
 
             //assert
             actual.Should().HaveCount(3);
@@ -107,7 +140,6 @@ namespace MovieSearch.Tests.MovieSearch.DAL.Repositories
         }
 
         #endregion
-
 
     }
 }
